@@ -1,7 +1,7 @@
 // src/components/Header.js
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../static/logot.png";
+import logo from "../static/logo.webp";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ const Header = () => {
           <div class="flex items-center lg:order-2">
             <button
               onClick={handleLogout}
-              class="bg-blue-600 text-white  hover:bg-blue-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2  focus:outline-none "
+              class="bg-pink-600 text-white  hover:bg-pink-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2  focus:outline-none "
             >
               Log out
             </button>

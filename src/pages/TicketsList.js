@@ -64,7 +64,7 @@ function TicketsList() {
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+              className="text-white bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
             >
               Open New Ticket
             </button>
@@ -101,7 +101,7 @@ function TicketsList() {
                         setForm({ ...form, title: e.target.value })
                       }
                       required
-                      className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+                      className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:border-pink-300"
                       placeholder="Enter subject"
                     />
                   </div>
@@ -121,13 +121,13 @@ function TicketsList() {
                         setForm({ ...form, message: e.target.value })
                       }
                       required
-                      className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+                      className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:border-pink-300"
                       placeholder="Describe your issue..."
                     ></textarea>
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition"
+                    className="w-full bg-pink-700 text-white px-4 py-2 rounded-lg hover:bg-pink-800 transition"
                   >
                     Submit
                   </button>

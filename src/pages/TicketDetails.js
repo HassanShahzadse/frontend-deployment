@@ -86,7 +86,7 @@ function TicketDetails() {
           <header className="mb-4 lg:mb-6 not-format">
             <button
               onClick={() => navigate(-1)}
-              className="text-base text-blue-500 mb-6 block"
+              className="text-base text-pink-500 mb-6 block"
             >
               ← Back
             </button>
@@ -165,7 +165,7 @@ function TicketDetails() {
             </div>
             <button
               type="submit"
-              className="inline-flex items-center py-2.5 px-4 text-base font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-primary-200 hover:bg-primary-800"
+              className="inline-flex items-center py-2.5 px-4 text-base font-medium text-center text-white bg-pink-700 rounded-lg focus:ring-4 focus:ring-primary-200 hover:bg-primary-800"
               disabled={waitingReply}
             >
               {waitingReply ? "Waiting for reply..." : "Post comment"}

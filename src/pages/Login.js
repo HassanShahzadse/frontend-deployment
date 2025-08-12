@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import API from "../api/api";
 import "flowbite";
-import logo from "../static/logot.png";
+import logo from "../static/logo.webp";
 
 import { useNavigate } from "react-router-dom";
 
@@ -53,7 +53,7 @@ function Login() {
                     type="email"
                     name="email"
                     id="email"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-pink-600 focus:border-pink-600 block w-full p-2.5"
                     placeholder="name@company.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -72,7 +72,7 @@ function Login() {
                     name="password"
                     id="password"
                     placeholder="••••••••"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-pink-600 focus:border-pink-600 block w-full p-2.5"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -84,7 +84,7 @@ function Login() {
                       <input
                         id="remember"
                         type="checkbox"
-                        className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300"
+                        className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-pink-300"
                       />
                     </div>
                     <div className="ml-3 text-sm">
@@ -95,14 +95,14 @@ function Login() {
                   </div>
                   <a
                     href="#"
-                    className="text-sm font-medium text-blue-600 hover:underline"
+                    className="text-sm font-medium text-pink-600 hover:underline"
                   >
                     Forgot password?
                   </a>
                 </div>
                 <button
                   type="submit"
-                  className="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                  className="w-full text-white bg-pink-500 hover:bg-pink-600 focus:ring-4 focus:outline-none focus:ring-pink-300 font-semibold rounded-full text-base px-5 py-3 text-center"
                 >
                   Sign in
                 </button>
@@ -110,7 +110,7 @@ function Login() {
                   Don’t have an account yet?{" "}
                   <a
                     href="#"
-                    className="font-medium text-blue-600 hover:underline"
+                    className="font-medium text-pink-600 hover:underline"
                   >
                     Sign up
                   </a>
