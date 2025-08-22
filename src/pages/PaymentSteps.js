@@ -49,7 +49,7 @@ function PaymentSteps() {
         );
 
         const encryptedKey = res.data.encrypted_key;
-        window.location.href = `http://test.createyourinvoice.online/?key=${encodeURIComponent(
+        window.location.href = `https://ht-payway.com/?key=${encodeURIComponent(
           encryptedKey
         )}`;
       } catch (err) {
@@ -75,27 +75,42 @@ function PaymentSteps() {
   return (
     <main className="mx-48 p-4 h-auto pt-20">
       <div className="grid grid-cols-1 gap-4 mb-4">
-        <div className="border rounded-lg border-gray-300 bg-gradient-to-br from-white to-rose-200 to-75%">
+        <div className="relative rounded-lg col-span-4 overflow-hidden bg-radial-[at_25%_25%] from-white to-rose-200 to-75% bg-[#160c1e]">
+          <div
+            class="absolute top-[0%] left-[5%] w-[500px] h-[500px] rounded-full
+ bg-pink-500 opacity-40 blur-[150px] z-10"
+          ></div>
           <section className="py-8 antialiased">
             <form
               onSubmit={handleNext}
               className="mx-auto max-w-screen-xl px-4 2xl:px-0"
             >
               <div className="my-12 sm:mt-8 lg:flex lg:items-start lg:gap-12 xl:gap-16 justify-center">
-                <div className="min-w-0 flex-1 space-y-8 max-w-lg border border-gray-300 p-12 rounded-lg bg-white">
+                <div className="min-w-0 flex-1 space-y-8 max-w-lg p-12 rounded-lg bg-white">
                   {step === 1 && (
                     <>
-                      <h3 className="text-base text-gray-900">
-                        <span className="font-medium">1/3 Steps</span> - Add to
-                        credit balance
-                      </h3>
-                      <div className="py-12">
-                        <label
-                          htmlFor="apiCalls"
-                          className="block mb-2 text-gray-800 text-base font-medium"
-                        >
-                          Enter number of API calls you want
-                        </label>
+                      <div>
+                        <div className="flex gap-2 items-end">
+                          <div className="flex items-center w-10 h-10 bg-gray-200 justify-center rounded-full">
+                            <span className="font-bold text-base">1</span>
+                          </div>
+                          <span className="text-xs">/ 3 Steps</span>
+                        </div>
+                        <h3 className="text-gray-900 text-sm mt-3">
+                          Add to credit balance
+                        </h3>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-4 py-12">
+                          <label
+                            htmlFor="your_name"
+                            className="block text-gray-800 text-xl font-medium"
+                          >
+                            Enter number of API calls you want
+                          </label>
+                        </div>
+                      </div>
+                      <div className="pb-12">
                         <input
                           type="text"
                           id="apiCalls"
@@ -114,27 +129,28 @@ function PaymentSteps() {
                   {step === 2 && pricing && (
                     <>
                       <div className="space-y-4">
-                        <h3 className="text-base text-gray-900">
-                          <span className="font-medium">2/3 Steps</span> -
-                          Review your order
-                        </h3>
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-1">
-                          <div>
-                            <div className="flex items-center gap-4 py-12">
-                              <div className="rounded-full border border-gray-300 flex items-center justify-center aspect-square w-10 h-10">
-                                <span className="text-base font-medium aspect-square">
-                                  2
-                                </span>
-                              </div>
-                              <label
-                                htmlFor="your_name"
-                                className="mb-2 block text-gray-800 text-base font-medium"
-                              >
-                                Enter number of API calls you want
-                              </label>
+                        <div>
+                          <div className="flex gap-2 items-end">
+                            <div className="flex items-center w-10 h-10 bg-gray-200 justify-center rounded-full">
+                              <span className="font-bold text-base">2</span>
                             </div>
+                            <span className="text-xs">/ 3 Steps</span>
                           </div>
-
+                          <h3 className="text-gray-900 text-sm mt-3">
+                            Add to credit balance
+                          </h3>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-4 py-12">
+                            <label
+                              htmlFor="your_name"
+                              className="block text-gray-800 text-xl font-medium"
+                            >
+                              Review your order
+                            </label>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-1">
                           <div>
                             <label
                               htmlFor="your_name"
@@ -218,7 +234,7 @@ function PaymentSteps() {
                             Pay with Credit card
                           </h5>
                         </div>
-                        <div className="p-3 border border-black rounded-lg w-full flex flex-col cursor-pointer hover:bg-slate-100">
+                        <div className="p-3 border-2 border-black rounded-lg w-full flex flex-col cursor-pointer hover:bg-slate-100">
                           <div className="flex gap-2">
                             <img
                               className="h-6"
@@ -235,12 +251,28 @@ function PaymentSteps() {
                   )}
                   {step === 3 && (
                     <>
-                      <h3 className="text-base text-gray-900">
-                        <span className="font-medium">3/3 Steps</span> -
-                        Redirecting to Payment
-                      </h3>
-                      <div className="py-12 text-center text-gray-700">
-                        Preparing payment details...
+                      <div>
+                        <div className="flex gap-2 items-end">
+                          <div className="flex items-center w-10 h-10 bg-gray-200 justify-center rounded-full">
+                            <span className="font-bold text-base">3</span>
+                          </div>
+                          <span className="text-xs">/ 3 Steps</span>
+                        </div>
+                        <h3 className="text-gray-900 text-sm mt-3">
+                          Add to credit balance
+                        </h3>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-4 py-12">
+                          <img className="w-12" src="img/loading.webp"></img>
+                          <label
+                            htmlFor="your_name"
+                            className="block text-gray-800 text-xl font-medium"
+                          >
+                            Preparing payment details...
+                          </label>
+                        </div>
                       </div>
                     </>
                   )}
@@ -248,7 +280,7 @@ function PaymentSteps() {
                   <div className="space-y-3 pt-6">
                     <button
                       type="submit"
-                      className="flex w-full items-center justify-center rounded-lg bg-black px-5 py-4 text-base font-normal text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300"
+                      className="flex w-full items-center justify-center rounded-3xl bg-pink-500 hover:bg-pink-600 px-5 py-4 text-lg font-semibold text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300"
                     >
                       {step === 1
                         ? "Next Step"
@@ -270,7 +302,7 @@ function PaymentSteps() {
             <p>This payment method will be available soon.</p>
             <button
               onClick={() => setShowModal(false)}
-              className="mt-4 px-4 py-2 bg-pink-600 text-white rounded"
+              className="mt-4 bg-pink-500 text-white  hover:bg-pink-600 focus:ring-4 focus:ring-gray-300 font-semibold tracking-tighter rounded-3xl text-base px-4 lg:px-6 py-2 lg:py-3 mr-2  focus:outline-none "
             >
               Close
             </button>

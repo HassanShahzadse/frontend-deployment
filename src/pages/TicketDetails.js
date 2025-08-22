@@ -123,11 +123,11 @@ function TicketDetails() {
                 <div className="flex items-center">
                   <p className="inline-flex items-center mr-3 text-sm text-gray-900 font-semibold">
                     <img
-                      className="mr-2 w-6 h-6 rounded-full"
+                      className="mr-2 w-8 h-8 rounded-full"
                       src={
                         msg.sender === "admin"
-                          ? "https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
-                          : "https://cdn-icons-png.flaticon.com/512/1946/1946429.png"
+                          ? "/img/support.png"
+                          : "/img/user.png"
                       }
                       alt={msg.sender}
                     />
@@ -144,7 +144,7 @@ function TicketDetails() {
 
           {waitingReply && (
             <p className="text-sm text-gray-500 mt-4 italic">
-              ChatGPT is typing a reply...
+              Support is typing a reply...
             </p>
           )}
 
@@ -165,7 +165,7 @@ function TicketDetails() {
             </div>
             <button
               type="submit"
-              className="inline-flex items-center py-2.5 px-4 text-base font-medium text-center text-white bg-pink-700 rounded-lg focus:ring-4 focus:ring-primary-200 hover:bg-primary-800"
+              className="inline-flex items-center bg-pink-500 text-white  hover:bg-pink-600 focus:ring-4 focus:ring-gray-300 font-semibold tracking-tighter rounded-3xl text-base px-4 lg:px-6 py-2 lg:py-3 mr-2  focus:outline-none "
               disabled={waitingReply}
             >
               {waitingReply ? "Waiting for reply..." : "Post comment"}

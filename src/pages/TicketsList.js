@@ -64,7 +64,7 @@ function TicketsList() {
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="text-white bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+              className="py-4 px-5 bg-pink-500 hover:bg-pink-600 font-semibold text-sm rounded-3xl text-white"
             >
               Open New Ticket
             </button>
@@ -127,7 +127,7 @@ function TicketsList() {
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-pink-700 text-white px-4 py-2 rounded-lg hover:bg-pink-800 transition"
+                    className="w-full py-4 px-5 bg-pink-500 hover:bg-pink-600 font-semibold text-sm rounded-3xl text-white transition"
                   >
                     Submit
                   </button>

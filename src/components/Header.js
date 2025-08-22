@@ -16,13 +16,13 @@ const Header = () => {
     <header>
       <nav class="bg-white border-gray-200 px-4 lg:px-6 py-2.5 ">
         <div class="flex flex-wrap justify-between items-center mx-48">
-          <a href="https://flowbite.com" class="flex items-center">
-            <img src={logo} class="mr-3 h-6 sm:h-10" alt="Flowbite Logo" />
+          <a href="/" class="flex items-center">
+            <img src={logo} class="mr-3 h-6 sm:h-10" alt="Logo" />
           </a>
           <div class="flex items-center lg:order-2">
             <button
               onClick={handleLogout}
-              class="bg-pink-600 text-white  hover:bg-pink-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2  focus:outline-none "
+              class="bg-pink-500 text-white  hover:bg-pink-600 focus:ring-4 focus:ring-gray-300 font-semibold tracking-tighter rounded-3xl text-base px-4 lg:px-6 py-2 lg:py-3 mr-2  focus:outline-none "
             >
               Log out
             </button>
@@ -72,7 +72,7 @@ const Header = () => {
                   class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0"
                   aria-current="page"
                 >
-                  Home
+                  Dashboard
                 </a>
               </li>
               <li>
@@ -80,7 +80,7 @@ const Header = () => {
                   href="/orders"
                   class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 "
                 >
-                  Orders
+                  Billing
                 </a>
               </li>
               <li>
@@ -88,7 +88,16 @@ const Header = () => {
                   href="/tickets"
                   class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 "
                 >
-                  Tickets
+                  Support
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.docs.blocklytics.net/"
+                  target="_blank"
+                  class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 "
+                >
+                  Docs
                 </a>
               </li>
             </ul>
