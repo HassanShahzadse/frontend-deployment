@@ -47,17 +47,18 @@ function PaymentTimeout() {
   }, [loading, navigate]);
 
   return (
-    <div className="p-10 text-center">
-      <h1 className="text-3xl font-bold text-red-600">❌ Payment Timed Out</h1>
-      <p className="mt-4 text-gray-700">Key: {key}</p>
-      <p className="mt-2 text-sm text-gray-500">
-        {loading ? "Resetting invoice..." : message}
-      </p>
-      {!loading && (
-        <p className="mt-2 text-xs text-gray-400">
-          Redirecting to homepage in 3 seconds...
+    <div className="flex justify-center w-full p-12">
+      <div className="bg-white p-12 flex flex-col items-center justify-center text-center rounded-lg">
+        <img className="w-48" src="/img/cross.gif"></img>
+        <h1 className="text-3xl font-bold">Payment Timeout</h1>
+        <p className="mt-4 text-gray-600 max-w-md">
+          The payment window has expired. Unfortunately, your order was canceled
+          because the payment was not received on time.
         </p>
-      )}
+        <p className="mt-4   text-xs text-gray-400">
+          Redirecting in 3 seconds...
+        </p>
+      </div>
     </div>
   );
 }

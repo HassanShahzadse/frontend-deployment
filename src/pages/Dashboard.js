@@ -316,8 +316,15 @@ function Dashboard() {
                 </div>
                 <div className="flex flex-col col-span-2">
                   <span className="text-xs text-gray-400">Invoice</span>
-                  <span className="mt-2">{order.invoice_number}</span>
+                  {order.status === "paid" ? (
+                    <span className="mt-2">{order.invoice_number}</span>
+                  ) : (
+                    <span className="mt-2 text-gray-400 italic">
+                      Invoice not available
+                    </span>
+                  )}
                 </div>
+
                 <div className="flex flex-col col-span-2">
                   <span className="text-xs text-gray-400">Status</span>
                   <div className="flex items-center justify-start mt-2">

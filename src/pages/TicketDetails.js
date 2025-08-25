@@ -148,29 +148,31 @@ function TicketDetails() {
             </p>
           )}
 
-          <form onSubmit={handleSubmit} className="my-6">
-            <div className="py-2 px-4 mb-4 bg-white rounded-lg border border-gray-200">
-              <label htmlFor="comment" className="sr-only">
-                Your comment
-              </label>
-              <textarea
-                id="comment"
-                rows="6"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                className="px-0 w-full text-base text-gray-900 border-0 focus:ring-0 focus:outline-none"
-                placeholder="Write a comment..."
-                required
-              ></textarea>
-            </div>
-            <button
-              type="submit"
-              className="inline-flex items-center bg-pink-500 text-white  hover:bg-pink-600 focus:ring-4 focus:ring-gray-300 font-semibold tracking-tighter rounded-3xl text-base px-4 lg:px-6 py-2 lg:py-3 mr-2  focus:outline-none "
-              disabled={waitingReply}
-            >
-              {waitingReply ? "Waiting for reply..." : "Post comment"}
-            </button>
-          </form>
+          {ticket.status !== "closed" && (
+            <form onSubmit={handleSubmit} className="my-6">
+              <div className="py-2 px-4 mb-4 bg-white rounded-lg border border-gray-200">
+                <label htmlFor="comment" className="sr-only">
+                  Your comment
+                </label>
+                <textarea
+                  id="comment"
+                  rows="6"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  className="px-0 w-full text-base text-gray-900 border-0 focus:ring-0 focus:outline-none"
+                  placeholder="Write a comment..."
+                  required
+                ></textarea>
+              </div>
+              <button
+                type="submit"
+                className="inline-flex items-center bg-pink-500 text-white  hover:bg-pink-600 focus:ring-4 focus:ring-gray-300 font-semibold tracking-tighter rounded-3xl text-base px-4 lg:px-6 py-2 lg:py-3 mr-2  focus:outline-none "
+                disabled={waitingReply}
+              >
+                {waitingReply ? "Waiting for reply..." : "Post comment"}
+              </button>
+            </form>
+          )}
         </div>
       </section>
     </main>

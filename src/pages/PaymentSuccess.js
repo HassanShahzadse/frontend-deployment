@@ -43,14 +43,18 @@ function PaymentSuccess() {
   }, [key, navigate]);
 
   return (
-    <div className="p-10 text-center">
-      <h1 className="text-3xl font-bold text-green-600">
-        ✅ Payment Successful
-      </h1>
-      <p className="mt-2 text-sm text-gray-500">
-        {loading ? "Updating order status..." : message}
-      </p>
-      <p className="mt-2 text-xs text-gray-400">Redirecting in 3 seconds...</p>
+    <div className="flex justify-center w-full p-12">
+      <div className="bg-white p-12 flex flex-col items-center justify-center text-center rounded-lg">
+        <img className="w-48" src="/img/check.gif"></img>
+        <h1 className="text-3xl font-bold">Payment Successful</h1>
+        <p className="mt-4 text-gray-600 max-w-md">
+          Thank you for your purchase. Your payment has been confirmed and your
+          order is now being processed.
+        </p>
+        <p className="mt-4   text-xs text-gray-400">
+          Redirecting in 3 seconds...
+        </p>
+      </div>
     </div>
   );
 }
