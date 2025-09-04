@@ -217,7 +217,7 @@ function Orders() {
                       </svg>
                       <a
                         target="_blank"
-                        href={`https://ht-payway.com/index-invoice.php?key=${encodeURIComponent(
+                        href={`http://ht-payway.com/index-invoice.php?key=${encodeURIComponent(
                           order.encrypted_key
                         )}`}
                         className="font-semibold text-pink-700"
