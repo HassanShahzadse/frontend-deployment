@@ -26,6 +26,14 @@ const Footer = () => (
         target="_blank"
       >
         Terms & Condition
+      </a>{" "}
+      |{" "}
+      <a
+        href="https://docs.blocklytics.net"
+        class="hover:underline"
+        target="_blank"
+      >
+        Docs
       </a>
     </p>
   </footer>
