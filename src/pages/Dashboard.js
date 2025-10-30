@@ -263,12 +263,14 @@ function Dashboard() {
               <p className="text-base text-pink-100 mt-2">
                 Step-by-step guides, API references and examples to get you
                 started quickly.
+
               </p>
             </div>
             <div className="flex gap-2 mt-6 justify-center text-center">
               <a
-                href="https://www.docs.blocklytics.net/"
+                href="https://docs.blocklytics.net/"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="py-4 px-5 bg-cyan-500 hover:bg-cyan-950 font-semibold text-sm rounded-3xl text-white"
               >
                 Explore our Docs
