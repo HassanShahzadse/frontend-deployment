@@ -191,7 +191,7 @@ function PaymentSteps() {
                               Unit price
                             </dt>
                             <dd className="text-base font-normal text-gray-900">
-                              0,19 EUR / API Call
+                              0,21 EUR / API Call
                             </dd>
                           </dl>
                           <dl className="flex items-center justify-between gap-2 py-2">
