@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import API from "../api/api";
 import "flowbite";
 import logo from "../static/logo.webp";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function SplashScreen() {
   return (
@@ -78,7 +78,7 @@ function Login() {
             <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 border border-gray-300 mt-6">
               <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                 <h1 className="font-mono text-3xl font-bold text-gray-900 pb-6 pt-3">
-                  Sign in to your account
+                  Sign in to your account 
                 </h1>
                 <form
                   className="space-y-4 md:space-y-6"
@@ -136,12 +136,12 @@ function Login() {
                         </label>
                       </div>
                     </div>
-                    <a
-                      href="#"
+                     <Link
+                      to="/forgot-password"
                       className="text-sm font-medium text-pink-600 hover:underline"
                     >
                       Forgot password?
-                    </a>
+                    </Link>
                   </div>
                   <button
                     type="submit"

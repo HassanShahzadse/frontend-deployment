@@ -2,6 +2,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
 import PaymentSteps from "./pages/PaymentSteps";
@@ -18,7 +20,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Ruta za prijavu bez Headera i Footera */}
+        {/* Javne rute bez Headera i Footera */}
         <Route
           path="/login"
           element={
@@ -27,7 +29,28 @@ function App() {
             </PublicRoute>
           }
         />
-        {/* Rute s Headerom i Footerom */}
+
+         <Route
+          path="/forgot-password"
+          element={
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/reset-password/:token"
+          element={
+            <PublicRoute>
+              <ResetPassword />
+            </PublicRoute>
+          }
+        />
+        {/* Stranice dostupne bez prijave (gateway callbacki) */}
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/timeout" element={<PaymentTimeout />} />
+
+        {/* Zaštićene rute s Layoutom */}
         <Route
           path="/"
           element={
@@ -41,8 +64,6 @@ function App() {
           <Route path="orders" element={<Orders />} />
           <Route path="tickets" element={<TicketsList />} />
           <Route path="tickets/:id" element={<TicketDetails />} />
-          <Route path="/payment/success" element={<PaymentSuccess />} />
-          <Route path="/payment/timeout" element={<PaymentTimeout />} />
         </Route>
       </Routes>
     </Router>
