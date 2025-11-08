@@ -11,6 +11,7 @@ import TicketsList from "./pages/TicketsList";
 import TicketDetails from "./pages/TicketDetails";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentTimeout from "./pages/PaymentTimeout";
+import NotificationCenter from "./pages/NotificationCenter";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -30,7 +31,7 @@ function App() {
           }
         />
 
-         <Route
+       <Route
           path="/forgot-password"
           element={
             <PublicRoute>
@@ -63,6 +64,7 @@ function App() {
           <Route path="payment" element={<PaymentSteps />} />
           <Route path="orders" element={<Orders />} />
           <Route path="tickets" element={<TicketsList />} />
+          <Route path="notifications" element={<NotificationCenter />} />
           <Route path="tickets/:id" element={<TicketDetails />} />
         </Route>
       </Routes>
