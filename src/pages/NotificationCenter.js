@@ -215,7 +215,12 @@ function NotificationCenter() {
       filtered = filtered.filter((n) => !n.seen);
     }
     
-    return filtered;
+    // Sort by created_at in descending order (newest first)
+    return [...filtered].sort((a, b) => {
+      const dateA = new Date(a.created_at || 0);
+      const dateB = new Date(b.created_at || 0);
+      return dateB - dateA; // Descending order (newest first)
+    });
   }, [notifications, activeFilter]);
 
   // Memoize counts to avoid recalculating on every render
