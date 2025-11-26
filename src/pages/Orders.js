@@ -1,40 +1,334 @@
-import React from "react";
-import "flowbite";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import API from "../api/api";
+import styled from "styled-components";
+import {
+  FileText,
+  Download,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertCircle,
+  Loader,
+} from "lucide-react";
+
+const Container = styled.main`
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 80px 16px 16px;
+`;
+
+const Section = styled.section`
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const Header = styled.div`
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const Title = styled.h3`
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6b7280;
+  letter-spacing: 0.5px;
+`;
+
+const OrderCount = styled.span`
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+`;
+
+const LoadingState = styled.p`
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  padding: 48px 0;
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: 64px 0;
+`;
+
+const EmptyIcon = styled.div`
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: #9ca3af;
+`;
+
+const EmptyText = styled.p`
+  font-size: 16px;
+  font-weight: 500;
+  color: #6b7280;
+`;
+
+const OrdersTable = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const OrderRow = styled.article`
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
+  align-items: center;
+  padding: 20px 24px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f9fafb;
+    border-color: #ec4899;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+`;
+
+const OrderColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+`;
+
+const ColumnLabel = styled.span`
+  font-size: 11px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+`;
+
+const ColumnValue = styled.span`
+  font-size: 14px;
+  color: #111827;
+  font-weight: ${(props) => (props.bold ? "600" : "400")};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const OrderID = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const OrderIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  flex-shrink: 0;
+`;
+
+const OrderNumber = styled.span`
+  font-size: 14px;
+  color: #111827;
+  font-weight: 600;
+`;
+
+const StatusBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
+
+  ${(props) => {
+    switch (props.status) {
+      case "paid":
+        return "background: #dcfce7; color: #166534;";
+      case "pending":
+        return "background: #fef3c7; color: #92400e;";
+      case "canceled":
+        return "background: #fee2e2; color: #991b1b;";
+      case "timeout":
+        return "background: #fed7aa; color: #9a3412;";
+      case "failed":
+        return "background: #fce7f3; color: #9f1239;";
+      default:
+        return "background: #f3f4f6; color: #374151;";
+    }
+  }}
+`;
+
+const ItalicText = styled.span`
+  font-style: italic;
+  color: #9ca3af;
+  font-size: 14px;
+`;
+
+const DownloadLink = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ec4899;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #db2777;
+  }
+`;
+
+const LoadMoreContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+`;
+
+const LoadMoreButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: white;
+  color: #374151;
+  font-weight: 600;
+  font-size: 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 200px;
+
+  &:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #ec4899;
+    color: #ec4899;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const getStatusIcon = (status) => {
+  switch (status) {
+    case "paid":
+      return <CheckCircle size={14} />;
+    case "canceled":
+    case "failed":
+      return <XCircle size={14} />;
+    case "pending":
+    case "timeout":
+      return <Clock size={14} />;
+    default:
+      return <AlertCircle size={14} />;
+  }
+};
+
+const getStatusLabel = (status) => {
+  const labels = {
+    paid: "Order paid",
+    canceled: "Order canceled",
+    pending: "Order pending",
+    timeout: "Order expired",
+    failed: "Order failed",
+  };
+  return labels[status] || "Order canceled";
+};
 
 function Orders() {
   const [orders, setOrders] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    async function fetchOrders() {
-      try {
-        const res = await API.get("/api/orders");
+  const LIMIT = 20;
 
-        const data = Array.isArray(res.data)
-          ? res.data
-          : Array.isArray(res.data.orders)
-          ? res.data.orders
-          : [];
+  const fetchOrders = async (currentPage, isLoadMore = false) => {
+    try {
+      if (isLoadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
 
-        const sorted = data.sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
-        );
+      const res = await API.get("/api/orders");
 
-        setOrders(sorted); // više nema .slice(0, 3)
-      } catch (err) {
-        console.error(
-          "❌ Failed to fetch orders:",
-          err.response?.data || err.message
-        );
+      // Dohvati sve ordere
+      const allOrders = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data.orders)
+        ? res.data.orders
+        : [];
+
+      // Sortiraj po datumu
+      const sorted = allOrders.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      // Implementiraj client-side paginaciju
+      const startIndex = 0;
+      const endIndex = (currentPage + 1) * LIMIT;
+      const paginatedOrders = sorted.slice(startIndex, endIndex);
+      const totalOrders = sorted.length;
+      const hasMoreOrders = endIndex < totalOrders;
+
+      setOrders(paginatedOrders);
+      setTotal(totalOrders);
+      setHasMore(hasMoreOrders);
+      setPage(currentPage);
+
+      // Spremi sve ordere u state za client-side paginaciju
+      if (!isLoadMore) {
+        sessionStorage.setItem("allOrders", JSON.stringify(sorted));
+      }
+    } catch (err) {
+      console.error(
+        "❌ Failed to fetch orders:",
+        err.response?.data || err.message
+      );
+      if (!isLoadMore) {
         setOrders([]);
       }
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
     }
+  };
 
-    fetchOrders();
+  useEffect(() => {
+    fetchOrders(0);
   }, []);
 
   useEffect(() => {
@@ -46,205 +340,138 @@ function Orders() {
           },
         });
         setUser(response.data);
-        console.log(response.data);
       } catch (error) {
         console.error("Failed to fetch user data", error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchUser();
   }, []);
+
+  const handleLoadMore = () => {
+    if (!loadingMore && hasMore) {
+      fetchOrders(page + 1, true);
+    }
+  };
+
   if (loading || !user) {
-    return <p className="p-4 text-sm text-gray-600">Loading user data...</p>;
+    return (
+      <Container>
+        <Section>
+          <LoadingState>Loading orders...</LoadingState>
+        </Section>
+      </Container>
+    );
   }
+
   return (
-    <main className="mx-48 p-4 h-auto pt-20">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 mb-4">
-        <div className="col-span-12 h-full">
-          <div className="rounded-lg col-span-3 p-6 bg-white">
-            <div className="pb-3 mb-3 border-b border-gray-300">
-              <h3 className="font-bold uppercase text-sm text-gray-700">
-                Pay as you go
-              </h3>
-            </div>
+    <Container>
+      <Section>
+        <Header>
+          <Title>Pay as you go</Title>
+          {total > 0 && (
+            <OrderCount>
+              Showing {orders.length} of {total} orders
+            </OrderCount>
+          )}
+        </Header>
 
-            {orders.map((order) => (
-              <article
-                key={order.id}
-                className="py-6 text-base py-3 grid grid-cols-12 gap-2 border-b border-gray-300"
-              >
-                <div className="flex flex-col col-span-2">
-                  <span className="text-xs text-gray-400">Order ID</span>
-                  <div className="flex gap-2 items-center mt-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200">
-                      <svg
-                        class="w-4 h-4 text-gray-800 "
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 7 2 2 4-4m-5-9v4h4V3h-4Z"
-                        />
-                      </svg>
-                    </div>
-                    <span className="font-medium">{order.order_number}</span>
-                  </div>
-                </div>
-                <div className="flex flex-col col-span-2">
-                  <span className="text-xs text-gray-400">Invoice</span>
-                  {order.status === "paid" ? (
-                    <span className="mt-2">{order.invoice_number}</span>
-                  ) : (
-                    <span className="mt-2 text-gray-400 italic">
-                      Invoice not available
-                    </span>
-                  )}
-                </div>
+        {orders.length === 0 ? (
+          <EmptyState>
+            <EmptyIcon>
+              <FileText size={32} />
+            </EmptyIcon>
+            <EmptyText>No orders found.</EmptyText>
+          </EmptyState>
+        ) : (
+          <>
+            <OrdersTable>
+              {orders.map((order) => (
+                <OrderRow key={order.id}>
+                  <OrderColumn>
+                    <ColumnLabel>Order ID</ColumnLabel>
+                    <OrderID>
+                      <OrderIcon>
+                        <FileText size={16} />
+                      </OrderIcon>
+                      <OrderNumber>{order.order_number}</OrderNumber>
+                    </OrderID>
+                  </OrderColumn>
 
-                <div className="flex flex-col col-span-2">
-                  <span className="text-xs text-gray-400">Status</span>
-                  <div className="flex items-center justify-start mt-2">
-                    {(() => {
-                      const metaByStatus = {
-                        paid: {
-                          label: "Order paid",
-                          ring: "bg-green-100 text-green-800",
-                          iconPath: "M5 11.917 9.724 16.5 19 7.5", // check
-                        },
-                        canceled: {
-                          label: "Order canceled",
-                          ring: "bg-red-100 text-red-800",
-                          iconPath: "M6 18 17.94 6M18 18 6.06 6", // x
-                        },
-                        pending: {
-                          label: "Order pending",
-                          ring: "bg-yellow-100 text-yellow-800",
-                          iconPath:
-                            "M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z", // clock
-                        },
-                        timeout: {
-                          label: "Order expired",
-                          ring: "bg-orange-100 text-orange-800",
-                          iconPath:
-                            "M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z", // clock (narančasto)
-                        },
-                        failed: {
-                          label: "Order failed",
-                          ring: "bg-pink-100 text-pink-800",
-                          iconPath: "M6 18 17.94 6M18 18 6.06 6", // x (rozo)
-                        },
-                      };
+                  <OrderColumn>
+                    <ColumnLabel>Invoice</ColumnLabel>
+                    {order.status === "paid" ? (
+                      <ColumnValue>{order.invoice_number}</ColumnValue>
+                    ) : (
+                      <ItalicText>Invoice not available</ItalicText>
+                    )}
+                  </OrderColumn>
 
-                      const meta = metaByStatus[order.status] ?? {
-                        label: "Order canceled",
-                        ring: "bg-red-100 text-red-800",
-                        iconPath: "M6 18 17.94 6M18 18 6.06 6", // x
-                      }; // fallback
+                  <OrderColumn>
+                    <ColumnLabel>Status</ColumnLabel>
+                    <StatusBadge status={order.status}>
+                      {getStatusIcon(order.status)}
+                      {getStatusLabel(order.status)}
+                    </StatusBadge>
+                  </OrderColumn>
 
-                      return (
-                        <div className="flex gap-2 items-center mt-2">
-                          <div
-                            className={`flex items-center justify-center w-6 h-6 rounded-full ${meta.ring}`}
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d={meta.iconPath}
-                              />
-                            </svg>
-                          </div>
-                          <span>{meta.label}</span>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </div>
-                <div className="flex flex-col col-span-2">
-                  <span className="text-xs text-gray-400">Date</span>
-                  <span className="mt-2">
-                    {new Date(order.created_at).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-                <div className="flex flex-col col-span-2">
-                  <span className="text-xs text-gray-400">Amount</span>
-                  <span className="mt-2">
-                    €{parseFloat(order.price_eur).toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex flex-col col-span-2">
-                  <span className="text-xs text-gray-400">Invoice</span>
-                  {order.status === "paid" ? (
-                    <div className="flex gap-2 items-center mt-2">
-                      <svg
-                        class="w-6 h-6 text-pink-700"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"
-                        />
-                      </svg>
-                      <a
+                  <OrderColumn>
+                    <ColumnLabel>Date</ColumnLabel>
+                    <ColumnValue>
+                      {new Date(order.created_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </ColumnValue>
+                  </OrderColumn>
+
+                  <OrderColumn>
+                    <ColumnLabel>Amount</ColumnLabel>
+                    <ColumnValue bold>
+                      €{parseFloat(order.price_eur).toFixed(2)}
+                    </ColumnValue>
+                  </OrderColumn>
+
+                  <OrderColumn>
+                    <ColumnLabel>Invoice</ColumnLabel>
+                    {order.status === "paid" ? (
+                      <DownloadLink
                         target="_blank"
+                        rel="noopener noreferrer"
                         href={`http://ht-payway.com/index-invoice.php?key=${encodeURIComponent(
                           order.encrypted_key
                         )}`}
-                        className="font-semibold text-pink-700"
                       >
+                        <Download size={18} />
                         Download
-                      </a>
-                    </div>
-                  ) : order.status === "pending" ? (
-                    <span className="text-gray-400 italic">
-                      Invoice not available
-                    </span>
-                  ) : order.status === "timeout" ? (
-                    <span className="text-gray-400 italic">
-                      Invoice not available
-                    </span>
+                      </DownloadLink>
+                    ) : (
+                      <ItalicText>Invoice not available</ItalicText>
+                    )}
+                  </OrderColumn>
+                </OrderRow>
+              ))}
+            </OrdersTable>
+
+            {hasMore && (
+              <LoadMoreContainer>
+                <LoadMoreButton onClick={handleLoadMore} disabled={loadingMore}>
+                  {loadingMore ? (
+                    <>
+                      <Loader size={18} className="animate-spin" />
+                      Loading...
+                    </>
                   ) : (
-                    <span className="text-gray-400 italic">
-                      Invoice not available
-                    </span>
+                    `Load More Orders`
                   )}
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </div>
-    </main>
+                </LoadMoreButton>
+              </LoadMoreContainer>
+            )}
+          </>
+        )}
+      </Section>
+    </Container>
   );
 }
 

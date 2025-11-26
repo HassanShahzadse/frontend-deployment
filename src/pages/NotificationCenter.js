@@ -1,7 +1,356 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import "flowbite";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import {
+  Bell,
+  CreditCard,
+  AlertTriangle,
+  Info,
+  XCircle,
+  Settings,
+  Shield,
+  CheckCircle,
+  Archive,
+  ArchiveRestore,
+  Trash2,
+} from "lucide-react";
+
+const Container = styled.main`
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 80px 16px 16px;
+`;
+
+const Section = styled.section`
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+`;
+
+const HeaderContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const Title = styled.h3`
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+`;
+
+const Subtitle = styled.p`
+  font-size: 14px;
+  color: #6b7280;
+`;
+
+const MarkAllButton = styled.button`
+  padding: 10px 20px;
+  background: white;
+  color: #ec4899;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid #ec4899;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #fce7f3;
+  }
+`;
+
+const MessageBox = styled.div`
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  ${(props) =>
+    props.type === "error" &&
+    `
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+  `}
+
+  ${(props) =>
+    props.type === "success" &&
+    `
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+  `}
+`;
+
+const TabsContainer = styled.div`
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 32px;
+`;
+
+const TabsList = styled.ul`
+  display: flex;
+  gap: 8px;
+  margin-bottom: -1px;
+`;
+
+const TabButton = styled.button`
+  padding: 12px 20px;
+  border-bottom: 2px solid
+    ${(props) => (props.active ? "#ec4899" : "transparent")};
+  color: ${(props) => (props.active ? "#ec4899" : "#6b7280")};
+  font-weight: 600;
+  font-size: 14px;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    color: ${(props) => (props.active ? "#ec4899" : "#374151")};
+  }
+`;
+
+const Badge = styled.span`
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: ${(props) => (props.active ? "#fce7f3" : "#f3f4f6")};
+  color: ${(props) => (props.active ? "#ec4899" : "#6b7280")};
+`;
+
+const NotificationsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const NotificationCard = styled.div`
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: ${(props) => (props.isUnread ? "#fef2f8" : "white")};
+  border: 1px solid ${(props) => (props.isUnread ? "#fce7f3" : "#e5e7eb")};
+  border-left: 4px solid
+    ${(props) => (props.isUnread ? "#ec4899" : "transparent")};
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+`;
+
+const IconWrapper = styled.div`
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: ${(props) => (props.isUnread ? "#fce7f3" : "#f3f4f6")};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${(props) => (props.isUnread ? "#ec4899" : "#6b7280")};
+`;
+
+const NotificationContent = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const NotificationHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+
+const CategoryBadge = styled.span`
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: ${(props) => (props.isAction ? "#fce7f3" : "#f3f4f6")};
+  color: ${(props) => (props.isAction ? "#ec4899" : "#6b7280")};
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const UnreadDot = styled.span`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ec4899;
+`;
+
+const DateText = styled.span`
+  font-size: 12px;
+  color: #9ca3af;
+`;
+
+const NotificationTitle = styled.h4`
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+`;
+
+const NotificationMessage = styled.p`
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+  line-height: 1.5;
+`;
+
+const MetadataText = styled.p`
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 12px;
+`;
+
+const ActionsContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+`;
+
+const ActionButton = styled.button`
+  padding: ${(props) => (props.primary ? "10px 20px" : "10px 20px")};
+  background: ${(props) =>
+    props.primary
+      ? "linear-gradient(135deg, #ec4899 0%, #db2777 100%)"
+      : "white"};
+  color: ${(props) => (props.primary ? "white" : "#ec4899")};
+  font-weight: 600;
+  font-size: 14px;
+  border: ${(props) => (props.primary ? "none" : "1px solid #ec4899")};
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${(props) =>
+      props.primary
+        ? "linear-gradient(135deg, #db2777 0%, #be185d 100%)"
+        : "#fce7f3"};
+    transform: translateY(-1px);
+  }
+`;
+
+const ControlsContainer = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
+const ControlButton = styled.button`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${(props) => (props.danger ? "#dc2626" : "#6b7280")};
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover {
+    background: ${(props) => (props.danger ? "#fee2e2" : "#f3f4f6")};
+    color: ${(props) => (props.danger ? "#991b1b" : "#111827")};
+  }
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: 64px 0;
+  color: #6b7280;
+`;
+
+const EmptyIcon = styled.div`
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: #9ca3af;
+`;
+
+const EmptyText = styled.p`
+  font-size: 16px;
+  font-weight: 500;
+  color: #6b7280;
+`;
+
+const LoadMoreButton = styled.button`
+  width: 100%;
+  max-width: 300px;
+  margin: 32px auto 0;
+  display: block;
+  padding: 12px 24px;
+  background: white;
+  color: #374151;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #ec4899;
+    color: #ec4899;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const LoadingState = styled.div`
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  padding: 48px 0;
+`;
 
 function NotificationCenter() {
   const [notifications, setNotifications] = useState([]);
@@ -14,74 +363,88 @@ function NotificationCenter() {
   const [hasMore, setHasMore] = useState(false);
   const [total, setTotal] = useState(0);
   const navigate = useNavigate();
-  const pageRef = useRef(0); // Track page value without causing re-renders
+  const pageRef = useRef(0);
 
-  const fetchNotifications = useCallback(async (reset = false, currentPageOverride = null) => {
-    try {
-      if (reset) {
-      setLoading(true);
-        setError(null);
-        setPage(0);
-        pageRef.current = 0;
-      } else {
-        setLoadingMore(true);
-      }
+  const fetchNotifications = useCallback(
+    async (reset = false, currentPageOverride = null) => {
+      try {
+        if (reset) {
+          setLoading(true);
+          setError(null);
+          setPage(0);
+          pageRef.current = 0;
+        } else {
+          setLoadingMore(true);
+        }
 
-      // Calculate current page - use override if provided, otherwise use ref
-      const currentPage = reset ? 0 : (currentPageOverride !== null ? currentPageOverride : pageRef.current);
-      const limit = 20;
-      const offset = currentPage * limit;
+        const currentPage = reset
+          ? 0
+          : currentPageOverride !== null
+          ? currentPageOverride
+          : pageRef.current;
+        const limit = 20;
+        const offset = currentPage * limit;
 
-      const response = await API.get("/api/notifications", {
-        params: {
-          limit,
-          offset,
-          include_archived: "true",
-        },
-      });
-
-      const data = response.data?.notifications || response.data || [];
-      const responseHasMore = response.data?.hasMore || false;
-      const responseTotal = response.data?.total || 0;
-
-      if (reset) {
-      setNotifications(data);
-        setPage(1);
-        pageRef.current = 1;
-      } else {
-        setNotifications((prev) => [...prev, ...data]);
-        setPage((prev) => {
-          const newPage = prev + 1;
-          pageRef.current = newPage;
-          return newPage;
+        const response = await API.get("/api/notifications", {
+          params: {
+            limit,
+            offset,
+            include_archived: "true",
+          },
         });
-      }
 
-      setHasMore(responseHasMore);
-      setTotal(responseTotal);
-    } catch (error) {
-      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-        setError("Request timed out. Please check your connection and try again.");
-      } else if (error.response?.status === 401 || error.response?.status === 403) {
-        // Auth error - API interceptor will handle redirect
-        setError("Session expired. Please log in again.");
-      } else {
-        setError(error.response?.data?.error || "Failed to load notifications. Please try again.");
+        const data = response.data?.notifications || response.data || [];
+        const responseHasMore = response.data?.hasMore || false;
+        const responseTotal = response.data?.total || 0;
+
+        if (reset) {
+          setNotifications(data);
+          setPage(1);
+          pageRef.current = 1;
+        } else {
+          setNotifications((prev) => [...prev, ...data]);
+          setPage((prev) => {
+            const newPage = prev + 1;
+            pageRef.current = newPage;
+            return newPage;
+          });
+        }
+
+        setHasMore(responseHasMore);
+        setTotal(responseTotal);
+      } catch (error) {
+        if (
+          error.code === "ECONNABORTED" ||
+          error.message.includes("timeout")
+        ) {
+          setError(
+            "Request timed out. Please check your connection and try again."
+          );
+        } else if (
+          error.response?.status === 401 ||
+          error.response?.status === 403
+        ) {
+          setError("Session expired. Please log in again.");
+        } else {
+          setError(
+            error.response?.data?.error ||
+              "Failed to load notifications. Please try again."
+          );
+        }
+        if (reset) {
+          setNotifications([]);
+        }
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-      if (reset) {
-      setNotifications([]);
-      }
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, []); // No dependencies - function is stable
+    },
+    []
+  );
 
   useEffect(() => {
-    // Reset and fetch when filter changes
     fetchNotifications(true, 0);
   }, [activeFilter, fetchNotifications]);
-
 
   const handleMarkAllAsRead = async () => {
     try {
@@ -101,7 +464,6 @@ function NotificationCenter() {
       return;
     }
 
-    // Navigation handling
     if (action.url.startsWith("http://") || action.url.startsWith("https://")) {
       window.open(action.url, "_blank");
     } else {
@@ -119,8 +481,7 @@ function NotificationCenter() {
     try {
       setError(null);
       await API.put(`/api/notifications/${notificationId}/seen`);
-      
-      // Update state immediately without refetching
+
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, seen: true } : n))
       );
@@ -132,13 +493,14 @@ function NotificationCenter() {
   const handleArchive = async (notificationId) => {
     try {
       setError(null);
-      const response = await API.put(`/api/notifications/${notificationId}/archive`);
+      await API.put(`/api/notifications/${notificationId}/archive`);
       setSuccessMessage("Notification archived");
       setTimeout(() => setSuccessMessage(null), 3000);
-      
-      // Update state immediately without refetching
+
       setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, archived: true } : n))
+        prev.map((n) =>
+          n.id === notificationId ? { ...n, archived: true } : n
+        )
       );
     } catch (error) {
       setError("Failed to archive notification. Please try again.");
@@ -148,13 +510,14 @@ function NotificationCenter() {
   const handleUnarchive = async (notificationId) => {
     try {
       setError(null);
-      const response = await API.put(`/api/notifications/${notificationId}/unarchive`);
+      await API.put(`/api/notifications/${notificationId}/unarchive`);
       setSuccessMessage("Notification unarchived");
       setTimeout(() => setSuccessMessage(null), 3000);
-      
-      // Update state immediately without refetching
+
       setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, archived: false } : n))
+        prev.map((n) =>
+          n.id === notificationId ? { ...n, archived: false } : n
+        )
       );
     } catch (error) {
       setError("Failed to unarchive notification. Please try again.");
@@ -170,8 +533,7 @@ function NotificationCenter() {
       await API.delete(`/api/notifications/${notificationId}`);
       setSuccessMessage("Notification deleted");
       setTimeout(() => setSuccessMessage(null), 3000);
-      
-      // Update state immediately without refetching
+
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
     } catch (error) {
       setError("Failed to delete notification. Please try again.");
@@ -179,7 +541,6 @@ function NotificationCenter() {
   };
 
   const handleNotificationClick = async (notification) => {
-    // Mark as read when clicked (if unread)
     if (!notification.seen) {
       await handleMarkAsRead(notification.id);
     }
@@ -188,397 +549,287 @@ function NotificationCenter() {
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" });
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   const formatDetailedDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    const options = { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" };
+    const options = {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    };
     return date.toLocaleDateString("en-US", options);
   };
 
-  // Memoize filtered notifications to avoid recalculating on every render
   const filteredNotifications = useMemo(() => {
     let filtered = notifications;
-    
-    // First filter by archived status based on active filter
+
     if (activeFilter === "archived") {
       filtered = notifications.filter((n) => n.archived === true);
     } else {
-      // For "all" and "unread", show only non-archived
       filtered = notifications.filter((n) => n.archived === false);
     }
-    
-    // Then filter by read status if needed
+
     if (activeFilter === "unread") {
       filtered = filtered.filter((n) => !n.seen);
     }
-    
-    // Sort by created_at in descending order (newest first)
+
     return [...filtered].sort((a, b) => {
       const dateA = new Date(a.created_at || 0);
       const dateB = new Date(b.created_at || 0);
-      return dateB - dateA; // Descending order (newest first)
+      return dateB - dateA;
     });
   }, [notifications, activeFilter]);
 
-  // Memoize counts to avoid recalculating on every render
   const counts = useMemo(() => {
-    // Count only non-archived notifications for "All" and "Unread" tabs
     const nonArchived = notifications.filter((n) => n.archived === false);
     const all = nonArchived.length;
     const unread = nonArchived.filter((n) => !n.seen).length;
     const archived = notifications.filter((n) => n.archived === true).length;
-    
+
     return { all, unread, archived };
   }, [notifications]);
 
-  const getIconSVG = (iconType, isUnread) => {
-    const iconColor = isUnread ? "text-pink-600" : "text-gray-600";
+  const getIcon = (iconType, isUnread) => {
     const icons = {
-      payment: (
-        <svg className={`w-5 h-5 ${iconColor}`} fill="currentColor" viewBox="0 0 20 20">
-          <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
-          <path
-            fillRule="evenodd"
-            d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ),
-      warning: (
-        <svg className={`w-5 h-5 ${iconColor}`} fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ),
-      info: (
-        <svg className={`w-5 h-5 ${iconColor}`} fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ),
-      outage: (
-        <svg className={`w-5 h-5 ${iconColor}`} fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ),
-      settings: (
-        <svg className={`w-5 h-5 ${iconColor}`} fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ),
-      security: (
-        <svg className={`w-5 h-5 ${iconColor}`} fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ),
+      payment: CreditCard,
+      warning: AlertTriangle,
+      info: Info,
+      outage: XCircle,
+      settings: Settings,
+      security: Shield,
     };
-    return icons[iconType] || icons.info;
-  };
-
-  const renderNotificationItem = (notification) => {
-    const isUnread = !notification.seen;
-    const bgColor = isUnread ? "bg-pink-50 border-l-4 border-pink-500" : "bg-white border border-gray-200";
-    const iconBg = isUnread ? "bg-pink-100" : "bg-gray-100";
-    const isSecurity = notification.category === "Security" || notification.icon_type === "security";
-    const hasMetadata = notification.metadata || notification.ip_address || notification.detailed_timestamp;
-
-    return (
-      <div 
-        key={notification.id} 
-        className={`flex gap-4 p-5 ${bgColor} rounded-lg hover:shadow-md transition-shadow cursor-pointer`}
-        onClick={() => handleNotificationClick(notification)}
-      >
-        <div className="flex-shrink-0">
-          <div className={`w-10 h-10 ${iconBg} rounded-full flex items-center justify-center`}>
-            {getIconSVG(notification.icon_type || "info", isUnread)}
-          </div>
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span
-                className={`${
-                  notification.category === "Action required"
-                    ? "bg-pink-100 text-pink-800"
-                    : "bg-gray-100 text-gray-800"
-                } text-xs font-semibold px-2.5 py-0.5 rounded`}
-              >
-                {notification.category || "Notification"}
-              </span>
-              {isUnread && <span className="w-2 h-2 bg-pink-500 rounded-full"></span>}
-            </div>
-            <span className="text-xs text-gray-500">{formatDate(notification.created_at)}</span>
-          </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">{notification.title}</h4>
-          <p className="text-sm text-gray-600 mb-2">{notification.message || notification.description}</p>
-          
-          {/* Security notification metadata */}
-          {isSecurity && hasMetadata && (
-            <p className="text-xs text-gray-500 mb-3">
-              {notification.ip_address && `IP: ${notification.ip_address}`}
-              {notification.ip_address && notification.detailed_timestamp && " • "}
-              {notification.detailed_timestamp && formatDetailedDate(notification.detailed_timestamp)}
-            </p>
-          )}
-          
-          {notification.actions && Array.isArray(notification.actions) && notification.actions.length > 0 && (
-            <div className="flex gap-2 flex-wrap mb-3">
-              {notification.actions.map((action, idx) => {
-                if (action.type === "link") {
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCTAClick(action, notification);
-                      }}
-                      className="text-sm font-medium text-pink-500 hover:text-pink-600"
-                    >
-                      {action.label}
-                    </button>
-                  );
-                }
-                return (
-                <button
-                  key={idx}
-                  type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCTAClick(action, notification);
-                    }}
-                  className={
-                    action.primary
-                      ? "text-white bg-pink-500 hover:bg-pink-600 focus:ring-4 focus:outline-none focus:ring-pink-300 font-semibold rounded-full text-sm px-5 py-2.5 text-center"
-                      : "font-semibold text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 text-sm px-5 py-2.5 text-center"
-                  }
-                >
-                  {action.label}
-                </button>
-                );
-              })}
-            </div>
-          )}
-          
-          {/* Action buttons */}
-          <div className="flex gap-2 items-center">
-            {!notification.seen && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleMarkAsRead(notification.id);
-                }}
-                className="text-xs text-gray-600 hover:text-gray-900 font-medium"
-              >
-                Mark as read
-              </button>
-            )}
-            {!notification.archived ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleArchive(notification.id);
-                }}
-                className="text-xs text-gray-600 hover:text-gray-900 font-medium"
-              >
-                Archive
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleUnarchive(notification.id);
-                }}
-                className="text-xs text-gray-600 hover:text-gray-900 font-medium"
-              >
-                Unarchive
-              </button>
-            )}
-            {!notification.is_global && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(notification.id);
-                }}
-                className="text-xs text-red-600 hover:text-red-800 font-medium"
-              >
-                Delete
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+    const IconComponent = icons[iconType] || Info;
+    return <IconComponent size={20} />;
   };
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-7xl p-4 h-auto pt-20">
-        <section className="bg-white py-8 lg:py-16 antialiased rounded-lg shadow-sm">
-          <div className="max-w-6xl mx-auto px-4">
-            <p className="text-center text-gray-600">Loading notifications...</p>
-          </div>
-        </section>
-      </main>
+      <Container>
+        <Section>
+          <LoadingState>Loading notifications...</LoadingState>
+        </Section>
+      </Container>
     );
   }
 
   return (
-    <main className="mx-auto max-w-7xl p-4 h-auto pt-20">
-      <section className="bg-white py-8 lg:py-16 antialiased rounded-lg shadow-sm">
-        <div className="max-w-6xl mx-auto px-4">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h3 className="text-3xl font-bold text-gray-900">Notifications</h3>
-              <p className="text-sm text-gray-500">Stay updated with your latest activities</p>
-            </div>
-            <div className="flex gap-3">
-              {activeFilter !== "archived" && (
-              <button
-                type="button"
-                onClick={handleMarkAllAsRead}
-                className="text-sm font-medium text-pink-500 hover:text-pink-600 focus:outline-none"
+    <Container>
+      <Section>
+        <Header>
+          <HeaderContent>
+            <Title>Notifications</Title>
+            <Subtitle>Stay updated with your latest activities</Subtitle>
+          </HeaderContent>
+          {activeFilter !== "archived" && (
+            <MarkAllButton onClick={handleMarkAllAsRead}>
+              Mark all as read
+            </MarkAllButton>
+          )}
+        </Header>
+
+        {error && (
+          <MessageBox type="error">
+            <AlertTriangle size={18} />
+            {error}
+          </MessageBox>
+        )}
+
+        {successMessage && (
+          <MessageBox type="success">
+            <CheckCircle size={18} />
+            {successMessage}
+          </MessageBox>
+        )}
+
+        <TabsContainer>
+          <TabsList>
+            <li>
+              <TabButton
+                active={activeFilter === "all"}
+                onClick={() => setActiveFilter("all")}
               >
-                Mark all as read
-              </button>
-              )}
-            </div>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
-          )}
-
-          {/* Success Message */}
-          {successMessage && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-800">{successMessage}</p>
-            </div>
-          )}
-
-          {/* Filter Tabs */}
-          <div className="border-b border-gray-200 mb-8">
-            <ul className="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
-              <li className="mr-2" role="presentation">
-                <button
-                  onClick={() => setActiveFilter("all")}
-                  className={`inline-block p-4 border-b-2 rounded-t-lg ${
-                    activeFilter === "all"
-                      ? "border-pink-500 text-pink-500"
-                      : "border-transparent hover:text-gray-600 hover:border-gray-300"
-                  }`}
-                  type="button"
-                  role="tab"
-                >
-                  All{" "}
-                  <span className="ml-1 text-xs bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full">
-                    {counts.all}
-                  </span>
-                </button>
-              </li>
-              <li className="mr-2" role="presentation">
-                <button
-                  onClick={() => setActiveFilter("unread")}
-                  className={`inline-block p-4 border-b-2 rounded-t-lg ${
-                    activeFilter === "unread"
-                      ? "border-pink-500 text-pink-500"
-                      : "border-transparent hover:text-gray-600 hover:border-gray-300"
-                  }`}
-                  type="button"
-                  role="tab"
-                >
-                  Unread{" "}
-                  <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                    {counts.unread}
-                  </span>
-                </button>
-              </li>
-              <li className="mr-2" role="presentation">
-                <button
-                  onClick={() => setActiveFilter("archived")}
-                  className={`inline-block p-4 border-b-2 rounded-t-lg ${
-                    activeFilter === "archived"
-                      ? "border-pink-500 text-pink-500"
-                      : "border-transparent hover:text-gray-600 hover:border-gray-300"
-                  }`}
-                  type="button"
-                  role="tab"
-                >
-                  Archived
-                  {counts.archived > 0 && (
-                    <span className="ml-1 text-xs bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full">
-                      {counts.archived}
-                    </span>
-                  )}
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Notifications List */}
-          <div className="space-y-4">
-            {filteredNotifications.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">
-                  {activeFilter === "archived" 
-                    ? "No archived notifications." 
-                    : activeFilter === "unread"
-                    ? "No unread notifications."
-                    : "No notifications found."}
-                </p>
-              </div>
-            ) : (
-              filteredNotifications.map((notification) => renderNotificationItem(notification))
-            )}
-          </div>
-
-          {/* Load More */}
-          {filteredNotifications.length > 0 && hasMore && (
-            <div className="mt-8 text-center">
-              <button
-                type="button"
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                className="font-semibold text-gray-900 bg-white border border-gray-300 rounded-full hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 text-base px-5 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                All
+                <Badge active={activeFilter === "all"}>{counts.all}</Badge>
+              </TabButton>
+            </li>
+            <li>
+              <TabButton
+                active={activeFilter === "unread"}
+                onClick={() => setActiveFilter("unread")}
               >
-                {loadingMore ? "Loading..." : "Load More Notifications"}
-              </button>
-            </div>
+                Unread
+                <Badge active={activeFilter === "unread"}>
+                  {counts.unread}
+                </Badge>
+              </TabButton>
+            </li>
+            <li>
+              <TabButton
+                active={activeFilter === "archived"}
+                onClick={() => setActiveFilter("archived")}
+              >
+                Archived
+                {counts.archived > 0 && (
+                  <Badge active={activeFilter === "archived"}>
+                    {counts.archived}
+                  </Badge>
+                )}
+              </TabButton>
+            </li>
+          </TabsList>
+        </TabsContainer>
+
+        <NotificationsList>
+          {filteredNotifications.length === 0 ? (
+            <EmptyState>
+              <EmptyIcon>
+                <Bell size={32} />
+              </EmptyIcon>
+              <EmptyText>
+                {activeFilter === "archived"
+                  ? "No archived notifications."
+                  : activeFilter === "unread"
+                  ? "No unread notifications."
+                  : "No notifications found."}
+              </EmptyText>
+            </EmptyState>
+          ) : (
+            filteredNotifications.map((notification) => {
+              const isUnread = !notification.seen;
+              const isSecurity =
+                notification.category === "Security" ||
+                notification.icon_type === "security";
+              const hasMetadata =
+                notification.metadata ||
+                notification.ip_address ||
+                notification.detailed_timestamp;
+              const isActionRequired =
+                notification.category === "Action required";
+
+              return (
+                <NotificationCard
+                  key={notification.id}
+                  isUnread={isUnread}
+                  onClick={() => handleNotificationClick(notification)}
+                >
+                  <IconWrapper isUnread={isUnread}>
+                    {getIcon(notification.icon_type || "info", isUnread)}
+                  </IconWrapper>
+
+                  <NotificationContent>
+                    <NotificationHeader>
+                      <CategoryBadge isAction={isActionRequired}>
+                        {notification.category || "Notification"}
+                        {isUnread && <UnreadDot />}
+                      </CategoryBadge>
+                      <DateText>{formatDate(notification.created_at)}</DateText>
+                    </NotificationHeader>
+
+                    <NotificationTitle>{notification.title}</NotificationTitle>
+                    <NotificationMessage>
+                      {notification.message || notification.description}
+                    </NotificationMessage>
+
+                    {isSecurity && hasMetadata && (
+                      <MetadataText>
+                        {notification.ip_address &&
+                          `IP: ${notification.ip_address}`}
+                        {notification.ip_address &&
+                          notification.detailed_timestamp &&
+                          " • "}
+                        {notification.detailed_timestamp &&
+                          formatDetailedDate(notification.detailed_timestamp)}
+                      </MetadataText>
+                    )}
+
+                    {notification.actions &&
+                      Array.isArray(notification.actions) &&
+                      notification.actions.length > 0 && (
+                        <ActionsContainer>
+                          {notification.actions.map((action, idx) => (
+                            <ActionButton
+                              key={idx}
+                              primary={action.primary}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCTAClick(action, notification);
+                              }}
+                            >
+                              {action.label}
+                            </ActionButton>
+                          ))}
+                        </ActionsContainer>
+                      )}
+
+                    <ControlsContainer>
+                      {!notification.seen && (
+                        <ControlButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMarkAsRead(notification.id);
+                          }}
+                        >
+                          Mark as read
+                        </ControlButton>
+                      )}
+                      {!notification.archived ? (
+                        <ControlButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleArchive(notification.id);
+                          }}
+                        >
+                          <Archive size={14} />
+                          Archive
+                        </ControlButton>
+                      ) : (
+                        <ControlButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUnarchive(notification.id);
+                          }}
+                        >
+                          <ArchiveRestore size={14} />
+                          Unarchive
+                        </ControlButton>
+                      )}
+                      {!notification.is_global && (
+                        <ControlButton
+                          danger
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(notification.id);
+                          }}
+                        >
+                          <Trash2 size={14} />
+                          Delete
+                        </ControlButton>
+                      )}
+                    </ControlsContainer>
+                  </NotificationContent>
+                </NotificationCard>
+              );
+            })
           )}
-        </div>
-      </section>
-    </main>
+        </NotificationsList>
+
+        {filteredNotifications.length > 0 && hasMore && (
+          <LoadMoreButton onClick={handleLoadMore} disabled={loadingMore}>
+            {loadingMore ? "Loading..." : "Load More Notifications"}
+          </LoadMoreButton>
+        )}
+      </Section>
+    </Container>
   );
 }
 
 export default NotificationCenter;
-

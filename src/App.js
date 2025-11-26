@@ -12,6 +12,7 @@ import TicketDetails from "./pages/TicketDetails";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentTimeout from "./pages/PaymentTimeout";
 import NotificationCenter from "./pages/NotificationCenter";
+import Profile from "./pages/Profile";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -30,8 +31,7 @@ function App() {
             </PublicRoute>
           }
         />
-
-       <Route
+        <Route
           path="/forgot-password"
           element={
             <PublicRoute>
@@ -47,6 +47,7 @@ function App() {
             </PublicRoute>
           }
         />
+
         {/* Stranice dostupne bez prijave (gateway callbacki) */}
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/timeout" element={<PaymentTimeout />} />
@@ -61,6 +62,7 @@ function App() {
           }
         >
           <Route index element={<Dashboard />} />
+          <Route path="profile" element={<Profile />} />
           <Route path="payment" element={<PaymentSteps />} />
           <Route path="orders" element={<Orders />} />
           <Route path="tickets" element={<TicketsList />} />

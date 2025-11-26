@@ -1,8 +1,330 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import dayjs from "dayjs";
 import API from "../api/api";
+import styled from "styled-components";
+import { Ticket, X, CheckCircle, Clock, XCircle } from "lucide-react";
+
+const Container = styled.main`
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 80px 16px 16px;
+`;
+
+const Section = styled.section`
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+`;
+
+const Title = styled.h3`
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+`;
+
+const CreateButton = styled.button`
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(236, 72, 153, 0.25);
+
+  &:hover {
+    background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(236, 72, 153, 0.3);
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+`;
+
+const Modal = styled.div`
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  padding: 32px;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+`;
+
+const ModalTitle = styled.h3`
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const Label = styled.label`
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 12px;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 16px;
+  color: #111827;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
+    background: white;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+`;
+
+const Textarea = styled.textarea`
+  width: 100%;
+  padding: 12px;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 16px;
+  color: #111827;
+  transition: all 0.2s ease;
+  resize: vertical;
+  min-height: 120px;
+
+  &:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
+    background: white;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+`;
+
+const SubmitButton = styled.button`
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.3);
+
+  &:hover {
+    background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+    box-shadow: 0 20px 25px -5px rgba(236, 72, 153, 0.4);
+    transform: translateY(-1px);
+  }
+`;
+
+const EmptyState = styled.p`
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+  padding: 48px 0;
+`;
+
+const LoadingState = styled.p`
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+  padding: 48px 0;
+`;
+
+const TicketsTable = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const TicketCard = styled(Link)`
+  display: grid;
+  grid-template-columns: 120px 1fr 140px 140px 140px;
+  gap: 16px;
+  align-items: center;
+  padding: 20px 24px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    background: #f9fafb;
+    border-color: #ec4899;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+`;
+
+const TicketColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+`;
+
+const ColumnLabel = styled.span`
+  font-size: 11px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+`;
+
+const ColumnValue = styled.span`
+  font-size: 16px;
+  color: #111827;
+  font-weight: ${(props) => (props.bold ? "600" : "400")};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const TicketID = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const TicketIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fce7f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ec4899;
+  flex-shrink: 0;
+`;
+
+const TicketNumber = styled.span`
+  font-size: 16px;
+  color: #111827;
+  font-weight: 600;
+`;
+
+const StatusBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  width: fit-content;
+  text-transform: capitalize;
+
+  ${(props) => {
+    switch (props.status) {
+      case "closed":
+        return `
+          background: #f3f4f6;
+          color: #374151;
+        `;
+      case "resolved":
+        return `
+          background: #dcfce7;
+          color: #166534;
+        `;
+      case "open":
+      default:
+        return `
+          background: #fef3c7;
+          color: #92400e;
+        `;
+    }
+  }}
+`;
+
+const getStatusIcon = (status) => {
+  switch (status) {
+    case "closed":
+      return <XCircle size={14} />;
+    case "resolved":
+      return <CheckCircle size={14} />;
+    case "open":
+    default:
+      return <Clock size={14} />;
+  }
+};
 
 function TicketsList() {
   const [tickets, setTickets] = useState([]);
@@ -19,7 +341,7 @@ function TicketsList() {
           },
         });
 
-        console.log("Tickets loaded:", res.data); // 👈 dodano
+        console.log("Tickets loaded:", res.data);
         setTickets(res.data);
       } catch (err) {
         console.error("Failed to load tickets:", err);
@@ -56,145 +378,116 @@ function TicketsList() {
   };
 
   return (
-    <main className="mx-48 p-4 h-auto pt-20">
-      <section className="bg-white py-8 lg:py-16 antialiased">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-3xl font-bold text-gray-900">Tickets</h3>
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="py-4 px-5 bg-pink-500 hover:bg-pink-600 font-semibold text-sm rounded-3xl text-white"
-            >
-              Open New Ticket
-            </button>
-          </div>
+    <Container>
+      <Section>
+        <Header>
+          <Title>Support Tickets</Title>
+          <CreateButton onClick={() => setIsModalOpen(true)}>
+            Open New Ticket
+          </CreateButton>
+        </Header>
 
-          {isModalOpen && (
-            <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-40">
-              <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-                <div className="flex justify-between items-center border-b pb-3 mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Create New Ticket
-                  </h3>
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <form onSubmit={handleSubmit}>
-                  <div className="mb-4">
-                    <label
-                      htmlFor="title"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Subject
-                    </label>
-                    <input
-                      type="text"
-                      id="title"
-                      name="title"
-                      value={form.title}
-                      onChange={(e) =>
-                        setForm({ ...form, title: e.target.value })
-                      }
-                      required
-                      className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:border-pink-300"
-                      placeholder="Enter subject"
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label
-                      htmlFor="message"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Message
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows="4"
-                      value={form.message}
-                      onChange={(e) =>
-                        setForm({ ...form, message: e.target.value })
-                      }
-                      required
-                      className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:border-pink-300"
-                      placeholder="Describe your issue..."
-                    ></textarea>
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full py-4 px-5 bg-pink-500 hover:bg-pink-600 font-semibold text-sm rounded-3xl text-white transition"
-                  >
-                    Submit
-                  </button>
-                </form>
-              </div>
-            </div>
-          )}
+        {isModalOpen && (
+          <ModalOverlay onClick={() => setIsModalOpen(false)}>
+            <Modal onClick={(e) => e.stopPropagation()}>
+              <ModalHeader>
+                <ModalTitle>Create New Ticket</ModalTitle>
+                <CloseButton onClick={() => setIsModalOpen(false)}>
+                  <X size={20} />
+                </CloseButton>
+              </ModalHeader>
 
-          {loading ? (
-            <p className="mt-8 text-gray-500">Loading...</p>
-          ) : tickets.length === 0 ? (
-            <p className="mt-8 text-gray-500">You have no tickets yet.</p>
-          ) : (
-            Array.isArray(tickets) &&
-            tickets.map((ticket) => (
-              <Link to={`/tickets/${ticket.id}`} key={ticket.id}>
-                <article className="py-6 text-base bg-white border rounded-lg border-gray-300 px-8 my-4 grid grid-cols-12 gap-2 hover:bg-gray-100 cursor-pointer">
-                  <div className="flex flex-col">
-                    <span className="text-xs text-gray-400">Ticket ID</span>
-                    <span className="mt-2">#{ticket.id.slice(0, 6)}</span>
-                  </div>
-                  <div className="flex flex-col col-span-4">
-                    <span className="text-xs text-gray-400">Title</span>
-                    <span className="mt-2 font-medium">{ticket.title}</span>
-                  </div>
-                  <div className="flex flex-col col-span-2 pr-6">
-                    <span className="text-xs text-gray-400">Status</span>
-                    <div className="mt-2">
-                      <span
-                        className={`text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm border
-    ${
-      ticket.status === "closed"
-        ? "bg-gray-200 text-gray-700 border-gray-400"
-        : ticket.status === "resolved"
-        ? "bg-green-100 text-green-800 border-green-400"
-        : "bg-yellow-100 text-yellow-800 border-yellow-300"
-    }`}
-                      >
-                        {ticket.status
-                          .split("_")
-                          .map(
-                            (word) =>
-                              word.charAt(0).toUpperCase() + word.slice(1)
-                          )
-                          .join(" ")}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col col-span-2">
-                    <span className="text-xs text-gray-400">Date Created</span>
-                    <span className="mt-2">
-                      {dayjs(ticket.created_at).format("MMM D, YYYY")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col col-span-2">
-                    <span className="text-xs text-gray-400">Last Updated</span>
-                    <span className="mt-2">
-                      {dayjs(ticket.updated_at).format("MMM D, YYYY")}
-                    </span>
-                  </div>
-                </article>
-              </Link>
-            ))
-          )}
-        </div>
-      </section>
-    </main>
+              <Form onSubmit={handleSubmit}>
+                <FormGroup>
+                  <Label htmlFor="title">Subject</Label>
+                  <Input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value={form.title}
+                    onChange={(e) =>
+                      setForm({ ...form, title: e.target.value })
+                    }
+                    placeholder="Enter subject"
+                    required
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <Label htmlFor="message">Message</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    value={form.message}
+                    onChange={(e) =>
+                      setForm({ ...form, message: e.target.value })
+                    }
+                    placeholder="Describe your issue..."
+                    required
+                  />
+                </FormGroup>
+
+                <SubmitButton type="submit">Submit Ticket</SubmitButton>
+              </Form>
+            </Modal>
+          </ModalOverlay>
+        )}
+
+        {loading ? (
+          <LoadingState>Loading tickets...</LoadingState>
+        ) : tickets.length === 0 ? (
+          <EmptyState>You have no tickets yet.</EmptyState>
+        ) : (
+          <TicketsTable>
+            {tickets.map((ticket) => (
+              <TicketCard to={`/tickets/${ticket.id}`} key={ticket.id}>
+                <TicketColumn>
+                  <ColumnLabel>Ticket ID</ColumnLabel>
+                  <TicketID>
+                    <TicketIcon>
+                      <Ticket size={16} />
+                    </TicketIcon>
+                    <TicketNumber>#{ticket.id.slice(0, 6)}</TicketNumber>
+                  </TicketID>
+                </TicketColumn>
+
+                <TicketColumn>
+                  <ColumnLabel>Title</ColumnLabel>
+                  <ColumnValue bold>{ticket.title}</ColumnValue>
+                </TicketColumn>
+
+                <TicketColumn>
+                  <ColumnLabel>Status</ColumnLabel>
+                  <StatusBadge status={ticket.status}>
+                    {getStatusIcon(ticket.status)}
+                    {ticket.status
+                      .split("_")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
+                  </StatusBadge>
+                </TicketColumn>
+
+                <TicketColumn>
+                  <ColumnLabel>Created</ColumnLabel>
+                  <ColumnValue>
+                    {dayjs(ticket.created_at).format("MMM D, YYYY")}
+                  </ColumnValue>
+                </TicketColumn>
+
+                <TicketColumn>
+                  <ColumnLabel>Updated</ColumnLabel>
+                  <ColumnValue>
+                    {dayjs(ticket.updated_at).format("MMM D, YYYY")}
+                  </ColumnValue>
+                </TicketColumn>
+              </TicketCard>
+            ))}
+          </TicketsTable>
+        )}
+      </Section>
+    </Container>
   );
 }
 

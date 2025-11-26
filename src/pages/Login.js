@@ -1,35 +1,273 @@
 import React, { useState, useEffect } from "react";
 import API from "../api/api";
-import "flowbite";
 import logo from "../static/logo.webp";
 import { useNavigate, Link } from "react-router-dom";
+import styled from "styled-components";
+import { Mail, Lock, AlertCircle } from "lucide-react";
 
-function SplashScreen() {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white"
-      role="status"
-      aria-label="Loading"
-    >
-      {/* Logo u sredini */}
-      <img src="/img/logo.gif" alt="Logo" className="h-24 w-auto" />
-      {/* Ako želiš spinner ispod loga, odkomentiraj:
-      <div className="sr-only">Loading...</div>
-      */}
-    </div>
-  );
-}
+const SplashOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fce7f3 0%, #ffffff 50%, #faf5ff 100%);
+  transition: opacity 0.2s ease;
+  opacity: ${(props) => (props.fadeOut ? 0 : 1)};
+`;
+
+const SplashLogo = styled.img`
+  height: 384px;
+  width: auto;
+`;
+
+const Container = styled.div`
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fce7f3 0%, #ffffff 50%, #faf5ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+`;
+
+const Wrapper = styled.div`
+  width: 100%;
+  max-width: 448px;
+`;
+
+const LogoContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+`;
+
+const Logo = styled.img`
+  height: 64px;
+  width: auto;
+`;
+
+const Card = styled.div`
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 2px solid #e5e7eb;
+  padding: 48px 40px;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: 32px;
+`;
+
+const Title = styled.h1`
+  font-size: 30px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+`;
+
+const Subtitle = styled.p`
+  color: #6b7280;
+  font-size: 14px;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const ErrorMessage = styled.div`
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const Label = styled.label`
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+`;
+
+const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const IconWrapper = styled.div`
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 12px 12px 12px 44px;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #111827;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
+    background: white;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+`;
+
+const FormOptions = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const RememberMe = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const Checkbox = styled.input`
+  width: 16px;
+  height: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  accent-color: #ec4899;
+`;
+
+const CheckboxLabel = styled.label`
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+`;
+
+const ForgotLink = styled(Link)`
+  font-size: 14px;
+  font-weight: 600;
+  color: #ec4899;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #db2777;
+  }
+`;
+
+const SubmitButton = styled.button`
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+    box-shadow: 0 20px 25px -5px rgba(236, 72, 153, 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const Spinner = styled.span`
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const SignupLink = styled.div`
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+
+  a {
+    font-weight: 600;
+    color: #ec4899;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #db2777;
+    }
+  }
+`;
+
+const Footer = styled.div`
+  margin-top: 32px;
+  text-align: center;
+  font-size: 12px;
+  color: #9ca3af;
+
+  a {
+    color: #ec4899;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #db2777;
+    }
+  }
+`;
 
 function Login() {
   const [showSplash, setShowSplash] = useState(true);
-  const [fadeOut, setFadeOut] = useState(false); // za lagani fade
+  const [fadeOut, setFadeOut] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 2s prikaz + 200ms fade-out
     const t1 = setTimeout(() => setFadeOut(true), 2500);
     const t2 = setTimeout(() => setShowSplash(false), 3000);
     return () => {
@@ -41,6 +279,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
       const res = await API.post("/api/users/login", { email, password });
@@ -49,112 +288,108 @@ function Login() {
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || "Login failed");
+      setIsLoading(false);
     }
   };
 
   return (
     <>
-      {/* Splash overlay */}
       {showSplash && (
-        <div
-          className={`fixed inset-0 z-50 flex items-center justify-center bg-white transition-opacity duration-200 ${
-            fadeOut ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          <img src="/img/logo.gif" alt="Logo" className="h-96 w-auto" />
-        </div>
+        <SplashOverlay fadeOut={fadeOut}>
+          <SplashLogo src="/img/logo.gif" alt="Logo" />
+        </SplashOverlay>
       )}
 
-      {/* Tvoj postojeći Login ekran */}
-      <main className="mx-48 p-4 h-auto pt-20">
-        <section className="py-24">
-          <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
-            <a
-              href="#"
-              className="flex items-center mb-6 text-2xl font-semibold text-gray-900"
-            >
-              <img className="h-14 mr-2" src={logo} alt="logo" />
-            </a>
-            <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 border border-gray-300 mt-6">
-              <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-                <h1 className="font-mono text-3xl font-bold text-gray-900 pb-6 pt-3">
-                  Sign in to your account 
-                </h1>
-                <form
-                  className="space-y-4 md:space-y-6"
-                  onSubmit={handleSubmit}
-                >
-                  {error && <div className="text-red-500 text-sm">{error}</div>}
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                    >
-                      Your email
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      id="email"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-pink-600 focus:border-pink-600 block w-full p-2.5"
-                      placeholder="name@company.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="password"
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                    >
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      id="password"
-                      placeholder="••••••••"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-pink-600 focus:border-pink-600 block w-full p-2.5"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="remember"
-                          type="checkbox"
-                          className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-pink-300"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="remember" className="text-gray-500">
-                          Remember me
-                        </label>
-                      </div>
-                    </div>
-                     <Link
-                      to="/forgot-password"
-                      className="text-sm font-medium text-pink-600 hover:underline"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full text-white bg-pink-500 hover:bg-pink-600 focus:ring-4 focus:outline-none focus:ring-pink-300 font-semibold rounded-full text-base px-5 py-3 text-center"
-                  >
-                    Sign in
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
+      <Container>
+        <Wrapper>
+          <LogoContainer>
+            <Logo src={logo} alt="logo" />
+          </LogoContainer>
+
+          <Card>
+            <Header>
+              <Title>Welcome back</Title>
+              <Subtitle>Sign in to continue to your account</Subtitle>
+            </Header>
+
+            <Form onSubmit={handleSubmit}>
+              {error && (
+                <ErrorMessage>
+                  <AlertCircle size={20} />
+                  <span>{error}</span>
+                </ErrorMessage>
+              )}
+
+              <FormGroup>
+                <Label htmlFor="email">Email address</Label>
+                <InputWrapper>
+                  <IconWrapper>
+                    <Mail size={20} />
+                  </IconWrapper>
+                  <Input
+                    type="email"
+                    id="email"
+                    placeholder="name@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </InputWrapper>
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="password">Password</Label>
+                <InputWrapper>
+                  <IconWrapper>
+                    <Lock size={20} />
+                  </IconWrapper>
+                  <Input
+                    type="password"
+                    id="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </InputWrapper>
+              </FormGroup>
+
+              <FormOptions>
+                <RememberMe>
+                  <Checkbox id="remember" type="checkbox" />
+                  <CheckboxLabel htmlFor="remember">Remember me</CheckboxLabel>
+                </RememberMe>
+                <ForgotLink to="/forgot-password">Forgot password?</ForgotLink>
+              </FormOptions>
+
+              <SubmitButton type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Spinner />
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </SubmitButton>
+            </Form>
+          </Card>
+
+          <Footer>
+            <p>
+              © 2025{" "}
+              <a
+                href="https://asseco.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Asseco Poland S.A
+              </a>{" "}
+              All right reserved
+            </p>
+          </Footer>
+        </Wrapper>
+      </Container>
     </>
   );
 }

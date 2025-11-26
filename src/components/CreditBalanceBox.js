@@ -28,7 +28,7 @@ function CreditBalanceBox() {
   }, []);
 
   return (
-    <div className="relative rounded-lg col-span-4 text-white overflow-hidden bg-radial-[at_25%_25%] from-white to-rose-200 to-75% bg-[#160c1e]">
+    <div className="relative rounded-lg col-span-12 lg:col-span-4 text-white overflow-hidden bg-radial-[at_25%_25%] from-white to-rose-200 to-75% bg-[#160c1e]">
       {/* Glow krug kao poseban element */}
       <div
         className="absolute top-[5%] left-[5%] w-[250px] h-[250px] rounded-full
