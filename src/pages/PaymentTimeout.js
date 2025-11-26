@@ -47,10 +47,10 @@ function PaymentTimeout() {
   }, [loading, navigate]);
 
   return (
-    <div className="flex justify-center w-full p-12">
-      <div className="bg-white p-12 flex flex-col items-center justify-center text-center rounded-lg">
-        <img className="w-48" src="/img/cross.gif"></img>
-        <h1 className="text-3xl font-bold">Payment Timeout</h1>
+    <div className="flex justify-center w-full p-4 sm:p-8 md:p-12">
+      <div className="bg-white p-6 sm:p-8 md:p-12 flex flex-col items-center justify-center text-center rounded-lg">
+        <img className="w-32 sm:w-40 md:w-48" src="/img/cross.gif"></img>
+        <h1 className="text-2xl sm:text-3xl font-bold">Payment Timeout</h1>
         <p className="mt-4 text-gray-600 max-w-md">
           The payment window has expired. Unfortunately, your order was canceled
           because the payment was not received on time.

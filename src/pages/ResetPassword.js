@@ -96,8 +96,8 @@ function ResetPassword() {
   // Show loading state while validating token
   if (tokenValid === null) {
     return (
-      <main className="mx-48 p-4 h-auto pt-20">
-        <section className="py-24">
+      <main className="mx-4 sm:mx-8 md:mx-16 lg:mx-48 p-4 h-auto pt-20">
+        <section className="py-12 sm:py-24">
           <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
             <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 border border-gray-300 mt-6">
               <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -116,8 +116,8 @@ function ResetPassword() {
   // Show error if token is invalid
   if (tokenValid === false) {
     return (
-      <main className="mx-48 p-4 h-auto pt-20">
-        <section className="py-24">
+      <main className="mx-4 sm:mx-8 md:mx-16 lg:mx-48 p-4 h-auto pt-20">
+        <section className="py-12 sm:py-24">
           <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
             <a
               href="/"
@@ -127,7 +127,7 @@ function ResetPassword() {
             </a>
             <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 border border-gray-300 mt-6">
               <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-                <h1 className="font-mono text-3xl font-bold text-gray-900 pb-6 pt-3">
+                <h1 className="font-mono text-2xl sm:text-3xl font-bold text-gray-900 pb-6 pt-3">
                   Invalid Reset Link
                 </h1>
                 <div className="text-red-500 text-sm mb-4">{error}</div>
@@ -149,8 +149,8 @@ function ResetPassword() {
   }
 
   return (
-    <main className="mx-48 p-4 h-auto pt-20">
-      <section className="py-24">
+    <main className="mx-4 sm:mx-8 md:mx-16 lg:mx-48 p-4 h-auto pt-20">
+      <section className="py-12 sm:py-24">
         <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
           <a
             href="/"
@@ -160,7 +160,7 @@ function ResetPassword() {
           </a>
           <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 border border-gray-300 mt-6">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-              <h1 className="font-mono text-3xl font-bold text-gray-900 pb-6 pt-3">
+              <h1 className="font-mono text-2xl sm:text-3xl font-bold text-gray-900 pb-6 pt-3">
                 Reset your password
               </h1>
               <form

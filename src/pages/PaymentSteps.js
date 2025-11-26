@@ -73,7 +73,7 @@ function PaymentSteps() {
   };
 
   return (
-    <main className="mx-48 p-4 h-auto pt-20">
+    <main className="mx-4 sm:mx-8 md:mx-16 lg:mx-48 p-4 h-auto pt-20">
       <div className="grid grid-cols-1 gap-4 mb-4">
         <div className="relative rounded-lg col-span-4 overflow-hidden bg-radial-[at_25%_25%] from-white to-rose-200 to-75% bg-[#160c1e]">
           <div

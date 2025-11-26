@@ -28,6 +28,10 @@ const LogoContainer = styled.div`
 const Logo = styled.img`
   height: 64px;
   width: auto;
+
+  @media (max-width: 640px) {
+    height: 48px;
+  }
 `;
 
 const Card = styled.div`
@@ -37,6 +41,11 @@ const Card = styled.div`
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
   border: 2px solid #e5e7eb;
   padding: 48px 40px;
+
+  @media (max-width: 640px) {
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
 `;
 
 const BackLink = styled(Link)`
@@ -65,6 +74,10 @@ const Title = styled.h1`
   font-weight: 700;
   color: #111827;
   margin-bottom: 8px;
+
+  @media (max-width: 640px) {
+    font-size: 24px;
+  }
 `;
 
 const Subtitle = styled.p`
