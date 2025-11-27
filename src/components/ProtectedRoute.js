@@ -1,11 +1,15 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import { useAutoLogout } from "../hooks/useAutoLogout";
 
 function ProtectedRoute({ children }) {
   const location = useLocation();
   const [checked, setChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Initialize auto logout functionality
+  useAutoLogout();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
