@@ -374,7 +374,28 @@ function Profile() {
       }
     };
 
+    const fetchPreferences = async () => {
+      try {
+        const [notifResponse, securityResponse] = await Promise.all([
+          API.get("/api/users/preferences/notifications"),
+          API.get("/api/users/preferences/security"),
+        ]);
+
+        setSettings((prev) => ({
+          ...prev,
+          emailNotifications: notifResponse.data.email_notifications,
+          securityAlerts: notifResponse.data.security_alerts,
+          marketingEmails: notifResponse.data.marketing_emails,
+          twoFactorAuth: securityResponse.data.two_factor_enabled,
+          sessionTimeout: securityResponse.data.auto_session_timeout,
+        }));
+      } catch (error) {
+        console.error("Failed to fetch preferences", error);
+      }
+    };
+
     fetchUser();
+    fetchPreferences();
   }, []);
 
   const handleInputChange = (e) => {
@@ -385,11 +406,37 @@ function Profile() {
     }));
   };
 
-  const handleToggle = (setting) => {
+  const handleToggle = async (setting) => {
+    const newValue = !settings[setting];
+    
+    // Update local state immediately for better UX
     setSettings((prev) => ({
       ...prev,
-      [setting]: !prev[setting],
+      [setting]: newValue,
     }));
+
+    try {
+      // Map frontend setting names to backend API field names
+      if (setting === "emailNotifications" || setting === "securityAlerts" || setting === "marketingEmails") {
+        await API.patch("/api/users/preferences/notifications", {
+          email_notifications: setting === "emailNotifications" ? newValue : settings.emailNotifications,
+          security_alerts: setting === "securityAlerts" ? newValue : settings.securityAlerts,
+          marketing_emails: setting === "marketingEmails" ? newValue : settings.marketingEmails,
+        });
+      } else if (setting === "twoFactorAuth" || setting === "sessionTimeout") {
+        await API.patch("/api/users/preferences/security", {
+          two_factor_enabled: setting === "twoFactorAuth" ? newValue : settings.twoFactorAuth,
+          auto_session_timeout: setting === "sessionTimeout" ? newValue : settings.sessionTimeout,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update setting", error);
+      // Revert on error
+      setSettings((prev) => ({
+        ...prev,
+        [setting]: !newValue,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -398,9 +445,13 @@ function Profile() {
     setSuccess(false);
 
     try {
-      // Ovdje bi trebao biti API call za update profila
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulacija
+      const response = await API.patch("/api/users/profile", {
+        company_name: formData.company_name,
+        primary_address: formData.primary_address,
+      });
 
+      // Update user state with the response
+      setUser(response.data.user);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
