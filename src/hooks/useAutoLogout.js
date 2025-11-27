@@ -55,10 +55,30 @@ export const useAutoLogout = () => {
       }
     };
 
+    // Listen for auto logout setting changes from Profile page
+    const handleAutoLogoutChange = (event) => {
+      const isEnabled = event.detail.enabled;
+      autoLogoutEnabledRef.current = isEnabled;
+      
+      if (isEnabled) {
+        // Start the timer if enabled
+        resetTimer();
+      } else {
+        // Clear the timer if disabled
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+      }
+    };
+
     // Add event listeners
     events.forEach((event) => {
       window.addEventListener(event, handleActivity);
     });
+
+    // Listen for auto logout setting changes
+    window.addEventListener('autoLogoutSettingChanged', handleAutoLogoutChange);
 
     // Cleanup
     return () => {
@@ -68,6 +88,7 @@ export const useAutoLogout = () => {
       events.forEach((event) => {
         window.removeEventListener(event, handleActivity);
       });
+      window.removeEventListener('autoLogoutSettingChanged', handleAutoLogoutChange);
     };
   }, []);
 

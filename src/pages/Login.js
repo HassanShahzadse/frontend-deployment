@@ -282,6 +282,10 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loginStep, setLoginStep] = useState(1);
+  const [otpCode, setOtpCode] = useState("");
+  const [userId, setUserId] = useState(null);
+  const [otpError, setOtpError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -300,12 +304,48 @@ function Login() {
 
     try {
       const res = await API.post("/api/users/login", { email, password });
-      localStorage.setItem("token", res.data.token);
-      navigate("/");
+      
+      // Check if 2FA is required
+      if (res.data.requires2FA) {
+        setUserId(res.data.userId);
+        setLoginStep(2);
+        setIsLoading(false);
+      } else {
+        // Normal login without 2FA
+        localStorage.setItem("token", res.data.token);
+        navigate("/");
+      }
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || "Login failed");
       setIsLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    setOtpError("");
+    setIsLoading(true);
+
+    try {
+      const res = await API.post("/api/users/verify-2fa", { userId, otpCode });
+      localStorage.setItem("token", res.data.token);
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      setOtpError(err.response?.data?.error || "OTP verification failed");
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setOtpError("");
+    try {
+      await API.post("/api/users/resend-2fa-otp", { userId });
+      setOtpError("New OTP sent to your email");
+    } catch (err) {
+      console.error(err);
+      setOtpError(err.response?.data?.error || "Failed to resend OTP");
     }
   };
 
@@ -325,71 +365,136 @@ function Login() {
 
           <Card>
             <Header>
-              <Title>Welcome back</Title>
-              <Subtitle>Sign in to continue to your account</Subtitle>
+              <Title>{loginStep === 1 ? "Welcome back" : "Enter Verification Code"}</Title>
+              <Subtitle>
+                {loginStep === 1
+                  ? "Sign in to continue to your account"
+                  : "We've sent a 6-digit code to your email"}
+              </Subtitle>
             </Header>
 
-            <Form onSubmit={handleSubmit}>
-              {error && (
-                <ErrorMessage>
-                  <AlertCircle size={20} />
-                  <span>{error}</span>
-                </ErrorMessage>
-              )}
-
-              <FormGroup>
-                <Label htmlFor="email">Email address</Label>
-                <InputWrapper>
-                  <IconWrapper>
-                    <Mail size={20} />
-                  </IconWrapper>
-                  <Input
-                    type="email"
-                    id="email"
-                    placeholder="name@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </InputWrapper>
-              </FormGroup>
-
-              <FormGroup>
-                <Label htmlFor="password">Password</Label>
-                <InputWrapper>
-                  <IconWrapper>
-                    <Lock size={20} />
-                  </IconWrapper>
-                  <Input
-                    type="password"
-                    id="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </InputWrapper>
-              </FormGroup>
-
-              <FormOptions>
-                <RememberMe>
-                  <Checkbox id="remember" type="checkbox" />
-                  <CheckboxLabel htmlFor="remember">Remember me</CheckboxLabel>
-                </RememberMe>
-                <ForgotLink to="/forgot-password">Forgot password?</ForgotLink>
-              </FormOptions>
-
-              <SubmitButton type="submit" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Spinner />
-                    <span>Signing in...</span>
-                  </>
-                ) : (
-                  "Sign in"
+            {loginStep === 1 && (
+              <Form onSubmit={handleSubmit}>
+                {error && (
+                  <ErrorMessage>
+                    <AlertCircle size={20} />
+                    <span>{error}</span>
+                  </ErrorMessage>
                 )}
-              </SubmitButton>
-            </Form>
+
+                <FormGroup>
+                  <Label htmlFor="email">Email address</Label>
+                  <InputWrapper>
+                    <IconWrapper>
+                      <Mail size={20} />
+                    </IconWrapper>
+                    <Input
+                      type="email"
+                      id="email"
+                      placeholder="name@company.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </InputWrapper>
+                </FormGroup>
+
+                <FormGroup>
+                  <Label htmlFor="password">Password</Label>
+                  <InputWrapper>
+                    <IconWrapper>
+                      <Lock size={20} />
+                    </IconWrapper>
+                    <Input
+                      type="password"
+                      id="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </InputWrapper>
+                </FormGroup>
+
+                <FormOptions>
+                  <RememberMe>
+                    <Checkbox id="remember" type="checkbox" />
+                    <CheckboxLabel htmlFor="remember">Remember me</CheckboxLabel>
+                  </RememberMe>
+                  <ForgotLink to="/forgot-password">Forgot password?</ForgotLink>
+                </FormOptions>
+
+                <SubmitButton type="submit" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Spinner />
+                      <span>Signing in...</span>
+                    </>
+                  ) : (
+                    "Sign in"
+                  )}
+                </SubmitButton>
+              </Form>
+            )}
+
+            {loginStep === 2 && (
+              <Form onSubmit={handleOtpSubmit}>
+                {otpError && (
+                  <ErrorMessage>
+                    <AlertCircle size={20} />
+                    <span>{otpError}</span>
+                  </ErrorMessage>
+                )}
+
+                <FormGroup>
+                  <Label htmlFor="otp">Verification Code</Label>
+                  <InputWrapper>
+                    <IconWrapper>
+                      <Lock size={20} />
+                    </IconWrapper>
+                    <Input
+                      type="text"
+                      id="otp"
+                      placeholder="Enter 6-digit code"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      maxLength={6}
+                      required
+                    />
+                  </InputWrapper>
+                </FormGroup>
+
+                <SubmitButton type="submit" disabled={isLoading || otpCode.length !== 6}>
+                  {isLoading ? (
+                    <>
+                      <Spinner />
+                      <span>Verifying...</span>
+                    </>
+                  ) : (
+                    "Verify"
+                  )}
+                </SubmitButton>
+
+                <FormOptions style={{ justifyContent: "space-between", marginTop: "12px" }}>
+                  <ForgotLink
+                    as="button"
+                    type="button"
+                    onClick={() => setLoginStep(1)}
+                    style={{ background: "none", border: "none", padding: 0 }}
+                  >
+                    ← Back to login
+                  </ForgotLink>
+                  <ForgotLink
+                    as="button"
+                    type="button"
+                    onClick={handleResendOtp}
+                    style={{ background: "none", border: "none", padding: 0 }}
+                  >
+                    Resend code
+                  </ForgotLink>
+                </FormOptions>
+              </Form>
+            )}
           </Card>
 
           <Footer>

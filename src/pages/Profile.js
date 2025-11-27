@@ -428,6 +428,14 @@ function Profile() {
           two_factor_enabled: setting === "twoFactorAuth" ? newValue : settings.twoFactorAuth,
           auto_session_timeout: setting === "sessionTimeout" ? newValue : settings.sessionTimeout,
         });
+
+        // If auto session timeout setting changed, notify the auto logout hook
+        if (setting === "sessionTimeout") {
+          const event = new CustomEvent('autoLogoutSettingChanged', {
+            detail: { enabled: newValue }
+          });
+          window.dispatchEvent(event);
+        }
       }
     } catch (error) {
       console.error("Failed to update setting", error);
