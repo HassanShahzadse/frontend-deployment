@@ -6,6 +6,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
+import Billing from "./pages/Billing";
 import PaymentSteps from "./pages/PaymentSteps";
 import TicketsList from "./pages/TicketsList";
 import TicketDetails from "./pages/TicketDetails";
@@ -13,6 +14,8 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentTimeout from "./pages/PaymentTimeout";
 import NotificationCenter from "./pages/NotificationCenter";
 import Profile from "./pages/Profile";
+import Reconciliations from "./pages/Reconciliations";
+import ReconciliationDetails from "./pages/ReconciliationDetails";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -65,9 +68,15 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="payment" element={<PaymentSteps />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="billing" element={<Billing />} />
           <Route path="tickets" element={<TicketsList />} />
           <Route path="notifications" element={<NotificationCenter />} />
           <Route path="tickets/:id" element={<TicketDetails />} />
+          <Route path="reconciliations" element={<Reconciliations />} />
+          <Route
+            path="reconciliations/:id"
+            element={<ReconciliationDetails />}
+          />
         </Route>
       </Routes>
     </Router>

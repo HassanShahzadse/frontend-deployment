@@ -492,8 +492,8 @@ const Header = () => {
               Dashboard
             </NavLink>
             <NavLink
-              to="/orders"
-              active={isActive("/orders")}
+              to="/billing"
+              active={isActive("/billing")}
               onClick={closeMobileMenu}
             >
               Billing
